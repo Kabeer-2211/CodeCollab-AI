@@ -2,14 +2,12 @@ import { useState, useEffect, createContext } from 'react'
 
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import useAxiosInterceptor from '@hooks/useAxiosInterceptor'
 import { login, register, profile, logout } from '@services/auth'
 import { getToken, setToken, deleteToken } from '@utils/auth'
 
 export const userContext = createContext();
 
 const UserContextProvider = ({ children }) => {
-    useAxiosInterceptor()
     const navigate = useNavigate();
     const [user, setUser] = useState(undefined);
     const [isLoading, setIsLoading] = useState(false)
@@ -49,6 +47,7 @@ const UserContextProvider = ({ children }) => {
             if (response) {
                 setToken(response.token)
                 setUser(response.user)
+                window.location.href = '/'
             }
         } catch (err) {
             console.log(err);
@@ -66,7 +65,7 @@ const UserContextProvider = ({ children }) => {
             if (response) {
                 setToken(response.token)
                 setUser(response.user)
-                navigate('/')
+                window.location.href = '/'
             }
         } catch (err) {
             console.log(err);

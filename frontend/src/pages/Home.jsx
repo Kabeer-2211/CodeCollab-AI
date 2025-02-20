@@ -10,6 +10,8 @@ const Home = () => {
         e.preventDefault()
         try {
             const response = await axios.post('/projects/create', { name: projectName });
+            console.log(response);
+            
             if (response) {
                 setIsModalOpen(false)
             }

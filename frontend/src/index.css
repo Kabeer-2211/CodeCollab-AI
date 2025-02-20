@@ -2,6 +2,13 @@
 .message-box{
     scroll-behavior: smooth;
 }
-.message-box::-webkit-scrollbar {
+.message-box::-webkit-scrollbar,
+.file_tree::-webkit-scrollbar {
     display: none;
+}
+.file_header::-webkit-scrollbar {
+    height: 3px;
+}
+.file_header::-webkit-scrollbar-thumb {
+    background: #0000002f;
 }

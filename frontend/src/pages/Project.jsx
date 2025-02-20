@@ -17,20 +17,29 @@ const Project = () => {
     const [users, setUsers] = useState([])
     const [project, setProject] = useState()
     const [chat, setChat] = useState([])
+    const [editorContent, setEditorContent] = useState()
+    const [openFiles, setOpenFiles] = useState([])
+    const [currentFile, setCurrentFile] = useState()
+    const [fileTree, setFileTree] = useState()
     const msgRef = useRef()
     useEffect(() => {
         if (project) {
             initializeSocket(project._id)
             receiveMessage('project-message', data => {
-                setChat(prevchat => {
-                    let newchat;
-                    if(data.sender === 'AI'){
+                setChat(prevChat => {
+                    let newChat;
+                    if (data.sender === 'AI') {
+                        // console.log(data.message)
                         console.log(JSON.parse(data.message))
-                        newchat = [...prevchat, {sender: data.sender, message: JSON.parse(data.message)}];
-                    }else {
-                        newchat = [...prevchat, data];
+                        const message = JSON.parse(data.message);
+                        if(message.fileTree){
+                            setFileTree(message.fileTree)
+                        }
+                        newChat = [...prevChat, { sender: data.sender, message: message.text }];
+                    } else {
+                        newChat = [...prevChat, data];
                     }
-                    return newchat;
+                    return newChat;
                 })
             });
         }
@@ -55,12 +64,13 @@ const Project = () => {
         }
         getAllUsers()
     }, [])
-    const handleAddCollabrators = async () => {
+    const handleAddCollaborators = async () => {
         try {
             const response = await axios.put('/projects/add-user', {
                 projectId: id,
                 users: Array.from(selectedUser)
             });
+            console.log(response)
             if (response && response.project) {
                 setProject(response.project)
                 setIsModalOpen(false)
@@ -105,10 +115,10 @@ const Project = () => {
                     </button>
                 </header>
                 <div className="conversation-area flex-grow flex flex-col">
-                    <div ref={msgRef} className="message-box max-h-[82vh] overflow-y-auto flex-grow p-2 flex flex-col gap-2">
+                    <div ref={msgRef} className="message-box max-h-[90vh] overflow-y-auto flex-grow p-2 flex flex-col gap-2">
                         {chat && chat.map((item, i) => <div key={i} className={`message px-3 py-2 ${item.sender === user.email ? 'ms-auto bg-green-200' : 'bg-white'} w-fit max-w-80 rounded-sm flex flex-col`}>
                             <small className="opacity-50 text-xs">{item.sender}</small>
-                            {item.sender === 'AI' ? <Markdown>{item.message.text}</Markdown> : <p className="text-sm">{item.message}</p>}
+                            {item.sender === 'AI' ? <Markdown>{item.message}</Markdown> : <p className="text-sm">{item.message}</p>}
                         </div>)
                         }
                     </div>
@@ -134,6 +144,24 @@ const Project = () => {
                     </div>
                 </div>
             </section>
+            {fileTree && <section className="flex flex-grow">
+                <div className="file_tree w-72 bg-slate-200 overflow-y-auto border-r-2 border-slate-400">
+                    {Object.keys(fileTree).map((item, index) => <button onClick={() => {
+                        setCurrentFile(item)
+                        setEditorContent(fileTree[item] ? fileTree[item].file.contents : '')
+                        setOpenFiles([...new Set([...openFiles, item])])
+                    }} key={index} className={`text-sm text-start border-b border-slate-300 p-3 w-full cursor-pointer ${currentFile === item && 'bg-slate-300'} hover:bg-slate-300`}>{item}</button>)}
+                </div>
+                <div className="flex-grow max-w-[70vw] flex flex-col">
+                    <div className="file_header flex overflow-x-auto bg-slate-200 border-b border-slate-300 w-full">
+                        {openFiles.map((item, index) => <button key={index} onClick={() => {
+                            setCurrentFile(item)
+                            setEditorContent(fileTree[item] ? fileTree[item].file.contents : '')
+                        }} className={`py-3 px-12 text-sm border-r border-slate-300 cursor-pointer ${currentFile === item && 'bg-slate-300'} hover:bg-slate-300`}>{item}</button>)}
+                    </div>
+                    <textarea className="resize-none outline-0 flex-grow p-3" onChange={(e) => setEditorContent(e.target.value)} value={editorContent}></textarea>
+                </div>
+            </section>}
 
             {/* add collaborator modal */}
             {isModalOpen && <div className="fixed top-0 left-0 right-0 z-50 w-full flex items-center justify-center bg-[#00000085] h-full">
@@ -154,7 +182,7 @@ const Project = () => {
                             </button>)}
                         </div>
                         <div className="flex items-center justify-center p-3 border-t border-gray-200 rounded-b">
-                            <button type="button" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xs px-5 py-2.5 text-center cursor-pointer" onClick={handleAddCollabrators}>Add Collabrators</button>
+                            <button type="button" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xs px-5 py-2.5 text-center cursor-pointer" onClick={handleAddCollaborators}>Add Collabrators</button>
                         </div>
                     </div>
                 </div>
