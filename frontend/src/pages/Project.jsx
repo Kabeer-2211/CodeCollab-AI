@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react"
 
 import { useParams } from "react-router-dom"
 import Markdown from 'markdown-to-jsx'
+import Editor from "@monaco-editor/react";
 
 import axios from '@config/axios'
 import useSession from '@hooks/useSession'
@@ -29,10 +30,10 @@ const Project = () => {
                 setChat(prevChat => {
                     let newChat;
                     if (data.sender === 'AI') {
-                        // console.log(data.message)
+                        console.log(data)
                         console.log(JSON.parse(data.message))
                         const message = JSON.parse(data.message);
-                        if(message.fileTree){
+                        if (message.fileTree) {
                             setFileTree(message.fileTree)
                         }
                         newChat = [...prevChat, { sender: data.sender, message: message.text }];
@@ -115,7 +116,7 @@ const Project = () => {
                     </button>
                 </header>
                 <div className="conversation-area flex-grow flex flex-col">
-                    <div ref={msgRef} className="message-box max-h-[90vh] overflow-y-auto flex-grow p-2 flex flex-col gap-2">
+                    <div ref={msgRef} className="message-box max-h-[82vh] overflow-y-auto flex-grow p-2 flex flex-col gap-2">
                         {chat && chat.map((item, i) => <div key={i} className={`message px-3 py-2 ${item.sender === user.email ? 'ms-auto bg-green-200' : 'bg-white'} w-fit max-w-80 rounded-sm flex flex-col`}>
                             <small className="opacity-50 text-xs">{item.sender}</small>
                             {item.sender === 'AI' ? <Markdown>{item.message}</Markdown> : <p className="text-sm">{item.message}</p>}
@@ -145,7 +146,7 @@ const Project = () => {
                 </div>
             </section>
             {fileTree && <section className="flex flex-grow">
-                <div className="file_tree w-72 bg-slate-200 overflow-y-auto border-r-2 border-slate-400">
+                <div className="file_tree w-60 bg-slate-200 overflow-y-auto border-r-2 border-slate-400">
                     {Object.keys(fileTree).map((item, index) => <button onClick={() => {
                         setCurrentFile(item)
                         setEditorContent(fileTree[item] ? fileTree[item].file.contents : '')
@@ -153,13 +154,29 @@ const Project = () => {
                     }} key={index} className={`text-sm text-start border-b border-slate-300 p-3 w-full cursor-pointer ${currentFile === item && 'bg-slate-300'} hover:bg-slate-300`}>{item}</button>)}
                 </div>
                 <div className="flex-grow max-w-[70vw] flex flex-col">
-                    <div className="file_header flex overflow-x-auto bg-slate-200 border-b border-slate-300 w-full">
+                    <div className="file_header flex overflow-x-auto bg-slate-200 border-b border-slate-300 w-full min-h-12">
                         {openFiles.map((item, index) => <button key={index} onClick={() => {
                             setCurrentFile(item)
                             setEditorContent(fileTree[item] ? fileTree[item].file.contents : '')
                         }} className={`py-3 px-12 text-sm border-r border-slate-300 cursor-pointer ${currentFile === item && 'bg-slate-300'} hover:bg-slate-300`}>{item}</button>)}
                     </div>
-                    <textarea className="resize-none outline-0 flex-grow p-3" onChange={(e) => setEditorContent(e.target.value)} value={editorContent}></textarea>
+                    <Editor
+                        language={fileTree[currentFile] ? fileTree[currentFile].file.language : 'plaintext'}
+                        value={fileTree[currentFile] ? fileTree[currentFile].file.contents : ''}
+                        theme="vs-dark"
+                        options={{ wordWrap: "on" }}
+                        onChange={(value) => {
+                            const ft = {
+                                ...fileTree,
+                                [currentFile]: {
+                                    file: {
+                                        contents: value
+                                    }
+                                }
+                            }
+                            setFileTree(ft)
+                        }}
+                    />
                 </div>
             </section>}
 

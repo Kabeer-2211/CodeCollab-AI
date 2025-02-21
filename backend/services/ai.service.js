@@ -29,7 +29,8 @@ const model = genAI.getGenerativeModel({
 
                 app.listen(3000, () => {
                     console.log('Server is running on port 3000');
-                })"
+                })",
+                language: "javascript"
             },
         },
 
@@ -64,12 +65,28 @@ const model = genAI.getGenerativeModel({
     }
     </example> 
     <example>
+       user: write js function <user prompt for function> 
+       response:{
+        "text":"Here is the function for <function that user asked>",
+            "fileTree": {
+                "script.js": {
+                    "file":{
+                        "contents": "function <name>(<params>) {
+                            <define function with erroer handeling and functionality here>
+                        }",
+                        language: "javascript"
+                    }
+                }
+            }
+       }
+     </example>
+    <example>
        user:Hello 
        response:{
        "text":"Hello, How can I help you today?"
        }
      </example>
-    
+    MUST FOLLOW EVERYTIME: always use specified file tree structure for any coding problem or any coding task and always specify language like specified in example
     IMPORTANT : don't use file name like routes/index.js`
 });
 
