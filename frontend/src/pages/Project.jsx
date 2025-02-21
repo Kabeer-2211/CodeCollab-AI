@@ -53,13 +53,12 @@ const Project = () => {
             getWebContainer().then(container => setWebContainer(container))
         }
     }, [])
-
-
     useEffect(() => {
         async function getProject() {
             const response = await axios.get(`/projects/get-project/${id}`)
             if (response && response.project) {
                 setProject(response.project)
+                setFileTree(response.project.fileTree)
             }
         }
         getProject()
@@ -110,6 +109,12 @@ const Project = () => {
             msgRef.current.scrollTop = msgRef.current.scrollHeight;
             setMessage("")
         }
+    }
+    const updateFileTree = async (ft) => {
+        const response = await axios.put('/projects/update-filetree', {
+            projectId: id,
+            fileTree: ft
+        })
     }
 
     return (
@@ -197,6 +202,7 @@ const Project = () => {
                                 }
                             }
                             setFileTree(ft)
+                            updateFileTree(ft);
                         }}
                     />
                 </div>

@@ -70,3 +70,17 @@ export const getProjectById = async (projectId) => {
     const project = await Project.findOne({ _id: projectId }).populate('users');
     return project;
 }
+
+export const updateFileTree = async (projectId, fileTree) => {
+    if (!projectId) {
+        throw new Error("Project id is required");
+    }
+    if (!mongoose.Types.ObjectId.isValid(projectId)) {
+        throw new Error("Invalid project id");
+    }
+    if (!fileTree) {
+        throw new Error("File tree is required");
+    }
+    const project = await Project.findByIdAndUpdate(projectId, { fileTree });
+    return project;
+}
