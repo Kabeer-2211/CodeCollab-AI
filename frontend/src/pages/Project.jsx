@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, useMemo } from "react"
 
 import { useParams } from "react-router-dom"
 import Markdown from 'markdown-to-jsx'
@@ -7,6 +7,7 @@ import Editor from "@monaco-editor/react";
 import axios from '@config/axios'
 import useSession from '@hooks/useSession'
 import { initializeSocket, receiveMessage, sendMessage } from "@config/socket"
+import { getWebContainer } from "@config/webContainer"
 
 const Project = () => {
     const { id } = useParams()
@@ -18,10 +19,12 @@ const Project = () => {
     const [users, setUsers] = useState([])
     const [project, setProject] = useState()
     const [chat, setChat] = useState([])
-    const [editorContent, setEditorContent] = useState()
     const [openFiles, setOpenFiles] = useState([])
     const [currentFile, setCurrentFile] = useState()
     const [fileTree, setFileTree] = useState()
+    const [webContainer, setWebContainer] = useState(null)
+    const [runProcess, setRunProcess] = useState(null)
+    const [iframeUrl, setIframeUrl] = useState("")
     const msgRef = useRef()
     useEffect(() => {
         if (project) {
@@ -30,11 +33,11 @@ const Project = () => {
                 setChat(prevChat => {
                     let newChat;
                     if (data.sender === 'AI') {
-                        console.log(data)
                         console.log(JSON.parse(data.message))
                         const message = JSON.parse(data.message);
                         if (message.fileTree) {
                             setFileTree(message.fileTree)
+                            setOpenFiles([])
                         }
                         newChat = [...prevChat, { sender: data.sender, message: message.text }];
                     } else {
@@ -45,6 +48,12 @@ const Project = () => {
             });
         }
     }, [project])
+    useEffect(() => {
+        if (!webContainer) {
+            getWebContainer().then(container => setWebContainer(container))
+        }
+    }, [])
+
 
     useEffect(() => {
         async function getProject() {
@@ -116,7 +125,7 @@ const Project = () => {
                     </button>
                 </header>
                 <div className="conversation-area flex-grow flex flex-col">
-                    <div ref={msgRef} className="message-box max-h-[82vh] overflow-y-auto flex-grow p-2 flex flex-col gap-2">
+                    <div ref={msgRef} className="message-box max-h-[90vh] overflow-y-auto flex-grow p-2 flex flex-col gap-2">
                         {chat && chat.map((item, i) => <div key={i} className={`message px-3 py-2 ${item.sender === user.email ? 'ms-auto bg-green-200' : 'bg-white'} w-fit max-w-80 rounded-sm flex flex-col`}>
                             <small className="opacity-50 text-xs">{item.sender}</small>
                             {item.sender === 'AI' ? <Markdown>{item.message}</Markdown> : <p className="text-sm">{item.message}</p>}
@@ -145,20 +154,32 @@ const Project = () => {
                     </div>
                 </div>
             </section>
-            {fileTree && <section className="flex flex-grow">
+            {!iframeUrl && fileTree && <section className="flex flex-grow">
                 <div className="file_tree w-60 bg-slate-200 overflow-y-auto border-r-2 border-slate-400">
                     {Object.keys(fileTree).map((item, index) => <button onClick={() => {
                         setCurrentFile(item)
-                        setEditorContent(fileTree[item] ? fileTree[item].file.contents : '')
                         setOpenFiles([...new Set([...openFiles, item])])
                     }} key={index} className={`text-sm text-start border-b border-slate-300 p-3 w-full cursor-pointer ${currentFile === item && 'bg-slate-300'} hover:bg-slate-300`}>{item}</button>)}
                 </div>
                 <div className="flex-grow max-w-[70vw] flex flex-col">
-                    <div className="file_header flex overflow-x-auto bg-slate-200 border-b border-slate-300 w-full min-h-12">
-                        {openFiles.map((item, index) => <button key={index} onClick={() => {
-                            setCurrentFile(item)
-                            setEditorContent(fileTree[item] ? fileTree[item].file.contents : '')
-                        }} className={`py-3 px-12 text-sm border-r border-slate-300 cursor-pointer ${currentFile === item && 'bg-slate-300'} hover:bg-slate-300`}>{item}</button>)}
+                    <div className="file_header flex justify-between overflow-x-auto bg-slate-200 border-b border-slate-300 w-full min-h-12">
+                        <div>
+                            {openFiles.map((item, index) => <button key={index} onClick={() => {
+                                setCurrentFile(item)
+                            }} className={`h-full px-12 text-sm border-r border-slate-300 cursor-pointer ${currentFile === item && 'bg-slate-300'} hover:bg-slate-300`}>{item}</button>)}
+                        </div>
+                        <button className="bg-slate-300 hover:bg-slate-400 px-5 cursor-pointer" onClick={async () => {
+                            await webContainer.mount(fileTree)
+                            await webContainer.spawn('npm', ['install'])
+                            if (runProcess) {
+                                await runProcess.kill()
+                            }
+                            const tempRunProcess = await webContainer.spawn('npm', ['start'])
+                            setRunProcess(tempRunProcess)
+                            webContainer.on('server-ready', (port, url) => {
+                                setIframeUrl(url)
+                            })
+                        }}>run</button>
                     </div>
                     <Editor
                         language={fileTree[currentFile] ? fileTree[currentFile].file.language : 'plaintext'}
@@ -170,8 +191,9 @@ const Project = () => {
                                 ...fileTree,
                                 [currentFile]: {
                                     file: {
-                                        contents: value
-                                    }
+                                        contents: value,
+                                        language: fileTree[currentFile].file.language
+                                    },
                                 }
                             }
                             setFileTree(ft)
@@ -179,6 +201,18 @@ const Project = () => {
                     />
                 </div>
             </section>}
+            {iframeUrl && webContainer && (<div className="flex-grow flex min-w-96 flex-col h-full">
+                <div className="address-bar py-2 px-4 bg-slate-200 flex justify-between">
+                    <input type="text"
+                        onChange={(e) => setIframeUrl(e.target.value)}
+                        value={iframeUrl} className="w-full outline-0" />
+                    <button className="bg-slate-300 p-2 px-6 hover:bg-slate-400 cursor-pointer" onClick={async () => {
+                        setIframeUrl('')
+                        await runProcess.kill()
+                    }}>stop</button>
+                </div>
+                <iframe src={iframeUrl} className="w-full h-full"></iframe>
+            </div>)}
 
             {/* add collaborator modal */}
             {isModalOpen && <div className="fixed top-0 left-0 right-0 z-50 w-full flex items-center justify-center bg-[#00000085] h-full">

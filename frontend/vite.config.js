@@ -20,5 +20,11 @@ export default defineConfig({
       "@hooks": path.resolve(__dirname, "src/hooks"),
       "@services": path.resolve(__dirname, "src/services"),
     }
+  },
+  server: {
+    headers: {
+      "Cross-Origin-Embedder-Policy": "require-corp",
+      "Cross-Origin-Opener-Policy": "same-origin"
+    }
   }
 })
