@@ -1,59 +1,54 @@
 import { useState } from 'react'
 
-import { Link } from 'react-router-dom';
+import Btn from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import { motion } from "motion/react";
+
+import Button from '@components/auth/Button';
 import useSession from '@hooks/useSession';
 
 const Register = () => {
     const { signupUser, isLoading } = useSession();
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const [formData, setFormData] = useState({
+        username: '',
+        email: '',
+        password: ''
+    })
+    const handleChange = (e, field) => {
+        setFormData({ ...formData, [field]: e.target.value })
+    }
     const handleSubmit = async (e) => {
         e.preventDefault()
-        await signupUser({ email, password });
+        await signupUser(formData)
     }
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-900">
-            <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
-                <h2 className="text-2xl font-bold text-white mb-6">Register</h2>
-                <form
-                    onSubmit={handleSubmit}
-                >
-                    <div className="mb-4">
-                        <label className="block text-gray-400 mb-2" htmlFor="email">Email</label>
-                        <input
-
-                            onChange={(e) => setEmail(e.target.value)}
-                            type="email"
-                            id="email"
-                            className="w-full p-3 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Enter your email"
-                        />
-                    </div>
-                    <div className="mb-6">
-                        <label className="block text-gray-400 mb-2" htmlFor="password">Password</label>
-                        <input
-                            onChange={(e) => setPassword(e.target.value)}
-                            type="password"
-                            id="password"
-                            className="w-full p-3 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Enter your password"
-                        />
-                    </div>
-                    {isLoading ? <button
-                        type="button"
-                        className="w-full p-3 rounded bg-slate-600 text-white"
-                    >
-                        Register
-                    </button> : <button
-                        type="submit"
-                        className="w-full p-3 rounded bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                        Register
-                    </button>}
-                </form>
-                <p className="text-gray-400 mt-4">
-                    Already have an account? <Link to="/login" className="text-blue-500 hover:underline">Login</Link>
-                </p>
+        <div className='h-screen w-screen flex items-center justify-center bg-[#0C5767]'>
+            <div className='rounded-4xl w-3/5 min-h-[80vh] flex p-3 bg-white'>
+                <section className='w-2/4 py-20 px-30'>
+                    <motion.div initial={{ opacity: 0, translateX: -100 }} animate={{ opacity: 1, translateX: 0 }} transition={{ duration: .7 }}>
+                        <div className='text-center' >
+                            <h2 className='font-semibold text-4xl'>Code Collab AI</h2>
+                            <p className='mt-2'>Code More. Code With Ease</p>
+                        </div>
+                        <div className='flex gap-3 mb-10 mt-6 justify-center'>
+                            <Button path='/register' label="Sign Up" isActive={true} />
+                            <Button path='/login' label="Log In" isActive={false} />
+                        </div>
+                    </motion.div>
+                    <motion.div initial={{ opacity: 0, translateY: 100 }} animate={{ opacity: 1, translateY: 0 }} transition={{ duration: .7 }}>
+                        <h2 className='font-semibold text-3xl'>Begin Your Journey</h2>
+                        <p className='mt-2'>Sign up with open account</p>
+                        <form onSubmit={handleSubmit} className='mt-5 flex flex-col gap-5'>
+                            <TextField value={formData.username} onChange={(e) => handleChange(e, 'username')} label="Username" variant="outlined" />
+                            <TextField value={formData.email} onChange={(e) => handleChange(e, 'email')} type='email' label="Email" variant="outlined" />
+                            <TextField value={formData.password} onChange={(e) => handleChange(e, 'password')} type='password' label="Password" variant="outlined" />
+                            <Btn type='submit' sx={{ background: 'black', padding: '12px 0' }} loading={isLoading} variant="contained">Let's Start</Btn>
+                        </form>
+                    </motion.div>
+                </section>
+                <section className='w-2/4 flex items-center justify-center'>
+                    <motion.img initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: .8, delay: 0.7 }} className='max-w-full max-h-full' src="https://img.freepik.com/premium-vector/chatbot-customer-service-abstract-concept-vector-illustration_107173-25718.jpg?semt=ais_hybrid" alt="login" />
+                </section>
             </div>
         </div>
     )

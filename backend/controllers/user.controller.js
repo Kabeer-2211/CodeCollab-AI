@@ -10,8 +10,8 @@ export const registerUserController = async (req, res) => {
         return res.status(400).json({ message: errors.array()[0].msg });
     }
     try {
-        const { email, password } = req.body;
-        const user = await createUser(email, password);
+        const { username, email, password } = req.body;
+        const user = await createUser(username, email, password);
         const token = await user.generateToken();
         return res.status(201).json({ user, token });
     } catch (err) {

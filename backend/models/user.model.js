@@ -3,6 +3,12 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 const userSchema = new mongoose.Schema({
+    username: {
+        type: String,
+        required: true,
+        trim: true,
+        minLength: [6, "username must be 6 characters long"],
+    },
     email: {
         type: String,
         required: true,
@@ -28,7 +34,7 @@ userSchema.methods.isValidPassword = async function (password) {
 
 userSchema.methods.generateToken = async function () {
     return await jwt.sign(
-        { email: this.email },
+        { username: this.username, email: this.email },
         process.env.JWT_SECRET,
         { expiresIn: '24h' }
     );

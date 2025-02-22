@@ -12,6 +12,8 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
+      "@layout": path.resolve(__dirname, "src/layout"),
+      "@components": path.resolve(__dirname, "src/components"),
       "@routes": path.resolve(__dirname, "src/routes"),
       "@pages": path.resolve(__dirname, "src/pages"),
       "@config": path.resolve(__dirname, "src/config"),
@@ -21,10 +23,10 @@ export default defineConfig({
       "@services": path.resolve(__dirname, "src/services"),
     }
   },
-  server: {
-    headers: {
-      "Cross-Origin-Embedder-Policy": "require-corp",
-      "Cross-Origin-Opener-Policy": "same-origin"
-    }
-  }
+  // server: {
+  //   headers: {
+  //     "Cross-Origin-Embedder-Policy": "require-corp",
+  //     "Cross-Origin-Opener-Policy": "same-origin"
+  //   }
+  // }
 })
