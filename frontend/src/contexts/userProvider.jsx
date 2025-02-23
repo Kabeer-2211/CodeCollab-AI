@@ -1,24 +1,21 @@
-import { useState, useEffect, createContext } from 'react'
+import { useEffect, createContext } from 'react'
 
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useSelector, useDispatch } from 'react-redux'
 
 import { login, register, profile, logout } from '@services/auth'
-import { getToken, setToken, deleteToken } from '@utils/auth'
-import useAxiosInterceptor from '@hooks/useAxiosInterceptor'
+import { setUser, beginAuthentication, authSuccess, logoutUser } from '@redux/slices/auth'
 
 export const userContext = createContext();
 
 const UserContextProvider = ({ children }) => {
-    useAxiosInterceptor();
     const navigate = useNavigate();
-    const [user, setUser] = useState(undefined);
-    const [isLoading, setIsLoading] = useState(false)
-    const token = getToken();
-    const isAuthenticated = Boolean(token);
+    const { token, iAuthenticated } = useSelector(state => state.auth)
+    const dispatch = useDispatch()
     const { pathname } = useLocation();
     useEffect(() => {
-        if (!token) {
-            setUser(undefined)
+        if (!token && iAuthenticated) {
+            signout()
         }
     }, [pathname, token]);
 
@@ -27,14 +24,11 @@ const UserContextProvider = ({ children }) => {
             try {
                 const response = await profile();
                 if (response) {
-                    setUser(response);
+                    dispatch(setUser(response))
                 }
             } catch (err) {
-                logoutUser();
-            } finally {
-                setTimeout(() => {
-                    setIsLoading(false);
-                }, 500);
+                dispatch(logoutUser())
+                navigate('/login')
             }
         }
         if (token) {
@@ -44,52 +38,42 @@ const UserContextProvider = ({ children }) => {
 
     const signupUser = async (data) => {
         try {
-            setIsLoading(true)
+            dispatch(beginAuthentication())
             const response = await register(data);
             if (response) {
-                setToken(response.token)
-                setUser(response.user)
+                dispatch(authSuccess({ user: response.user, token: response.token }))
                 window.location.href = '/'
             }
         } catch (err) {
-            console.log(err);
-            setIsLoading(false)
+            console.log(err)
+            dispatch(logoutUser())
         }
     };
 
     const loginUser = async (data) => {
         try {
-            setIsLoading(true);
+            dispatch(beginAuthentication())
             const response = await login(data);
+            console.log(response)
             if (response) {
-                setToken(response.token)
-                setUser(response.user)
+                dispatch(authSuccess({ user: response.user, token: response.token }))
                 window.location.href = '/'
             }
         } catch (err) {
-            console.log(err);
-            setIsLoading(false)
+            console.log(err)
+            dispatch(logoutUser())
         }
     };
-
-    const logoutUser = () => {
-        try {
-            logout()
-            deleteToken()
-            setUser(undefined)
-            navigate('/login')
-        } catch (err) {
-            console.log(err);
-        }
-    };
+    const signout = async () => {
+        await logout()
+        dispatch(logoutUser())
+        navigate('/login')
+    }
     return (
         <userContext.Provider value={{
-            user,
-            isAuthenticated,
-            isLoading,
             signupUser,
             loginUser,
-            logoutUser
+            signout
         }}>
             {children}
         </userContext.Provider>

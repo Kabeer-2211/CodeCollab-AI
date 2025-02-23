@@ -5,19 +5,20 @@ import Router from "@routes/index"
 import Layout from '@layout'
 import UserContextProvider from "@contexts/userProvider"
 import ErrorProvider from '@contexts/errorProvider'
-import useAxiosInterceptor from '@hooks/useAxiosInterceptor'
+import AxiosInterceptorProvider from '@contexts/AxiosInterceptorProvider'
 
 const App = () => {
-  // useAxiosInterceptor()
 
   return (
     <BrowserRouter>
       <ErrorProvider>
-        <UserContextProvider>
-          <Layout>
-            <Router />
-          </Layout>
-        </UserContextProvider>
+        <AxiosInterceptorProvider>
+          <UserContextProvider>
+            <Layout>
+              <Router />
+            </Layout>
+          </UserContextProvider>
+        </AxiosInterceptorProvider>
       </ErrorProvider>
     </BrowserRouter>
   )

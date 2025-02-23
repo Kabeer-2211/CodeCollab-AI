@@ -22,9 +22,9 @@ const Register = () => {
         await signupUser(formData)
     }
     return (
-        <div className='h-screen w-screen flex items-center justify-center bg-[#0C5767]'>
-            <div className='rounded-4xl w-3/5 min-h-[80vh] flex p-3 bg-white'>
-                <section className='w-2/4 py-20 px-30'>
+        <div className='min-h-screen flex items-center justify-center bg-[#0C5767]'>
+            <div className='my-10 rounded-4xl w-4/5 min-h-[80vh] flex bg-white'>
+                <section className='w-2/4 py-10 px-30'>
                     <motion.div initial={{ opacity: 0, translateX: -100 }} animate={{ opacity: 1, translateX: 0 }} transition={{ duration: .7 }}>
                         <div className='text-center' >
                             <h2 className='font-semibold text-4xl'>Code Collab AI</h2>

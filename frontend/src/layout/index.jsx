@@ -1,13 +1,17 @@
+import useSession from '@hooks/useSession'
 import Error from "@components/Error"
 import useError from "@hooks/useError"
+import Navbar from '@components/Navbar'
 
 const Layout = ({ children }) => {
     const { error } = useError()
+    const { isAuthenticated } = useSession()
     return (
-        <div>
+        <main>
             <Error show={error} />
+            {isAuthenticated && <Navbar />}
             {children}
-        </div>
+        </main>
     )
 }
 
