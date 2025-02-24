@@ -24,10 +24,10 @@ const authSlice = createSlice({
             state.isAuthenticated = true
         },
         logoutUser: (state) => {
-            state.user = undefined
-            state.token = null
             state.isLoading = false
             state.isAuthenticated = false
+            state.user = undefined
+            state.token = null
         }
     }
 });

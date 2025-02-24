@@ -17,7 +17,7 @@ const UserContextProvider = ({ children }) => {
         if (!token && iAuthenticated) {
             signout()
         }
-    }, [pathname, token]);
+    }, [pathname, token, iAuthenticated]);
 
     useEffect(() => {
         async function getUserdata() {
@@ -42,7 +42,7 @@ const UserContextProvider = ({ children }) => {
             const response = await register(data);
             if (response) {
                 dispatch(authSuccess({ user: response.user, token: response.token }))
-                window.location.href = '/'
+                navigate('/')
             }
         } catch (err) {
             console.log(err)
@@ -57,7 +57,7 @@ const UserContextProvider = ({ children }) => {
             console.log(response)
             if (response) {
                 dispatch(authSuccess({ user: response.user, token: response.token }))
-                window.location.href = '/'
+                navigate('/')
             }
         } catch (err) {
             console.log(err)

@@ -1,17 +1,18 @@
-import { useEffect } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 import axios from "@config/axios";
 import useError from "@hooks/useError";
-import useSession from "@hooks/useSession";
+import { useSelector } from "react-redux";
 
 const AxiosInterceptorProvider = ({ children }) => {
     const { showError } = useError();
-    const { token } = useSession();
+    const { token } = useSelector(state => state.auth)
+    const [isReady, setisReady] = useState(false)
     useEffect(() => {
         const requestIntercepter = axios.interceptors.request.use(
             (config) => {
                 if (token) {
-                    config.headers.Authorization = `bearer ${token}`;
+                    config.headers.Authorization = `Bearer ${token}`;
                 }
                 return config;
             },
@@ -36,11 +37,15 @@ const AxiosInterceptorProvider = ({ children }) => {
                 return Promise.reject(response);
             }
         )
+        setisReady(true)
         return () => {
             axios.interceptors.request.eject(requestIntercepter);
             axios.interceptors.response.eject(responseInterceptor);
         };
     }, []);
+
+    if (!isReady) return null;
+
     return children
 };
 
