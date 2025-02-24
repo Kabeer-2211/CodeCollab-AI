@@ -1,14 +1,27 @@
 import { useState } from 'react'
 
 import { Link } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
 
+import { filterProjects, resetProjects } from '../redux/slices/project'
 import Tooltip from '@components/Tooltip'
 import useSession from '@hooks/useSession'
 import Modal from '@components/modal'
 
 const Navbar = () => {
+    const dispatch = useDispatch()
     const { signout, user } = useSession()
     const [isModalOpen, setisModalOpen] = useState(false)
+    const [search, setSearch] = useState("")
+    const handleChange = (e) => {
+        const value = e.target.value;
+        if (value.trim() !== '') {
+            dispatch(filterProjects(value))
+        } else {
+            dispatch(resetProjects())
+        }
+        setSearch(value)
+    }
     return (
         <>
             <Modal isModalOpen={isModalOpen} setisModalOpen={setisModalOpen} />
@@ -20,7 +33,7 @@ const Navbar = () => {
                 {/* Search Bar */}
                 <div className="w-2/5 mx-4">
                     <div className="relative">
-                        <input type="text" placeholder="Search" className="w-full py-2 pl-10 pr-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600" />
+                        <input type="text" placeholder="Search" value={search} onChange={(e) => handleChange(e)} className="w-full py-2 pl-10 pr-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-600" />
                         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                             <i className="ri-search-line text-gray-400"></i>
                         </div>
