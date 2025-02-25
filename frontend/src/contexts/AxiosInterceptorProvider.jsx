@@ -1,15 +1,16 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect } from 'react';
 
-import axios from "@config/axios";
-import useError from "@hooks/useError";
-import { useSelector } from "react-redux";
+import axios from '@config/axios';
+import { useSelector } from 'react-redux';
 
-const AxiosInterceptorProvider = ({ children }) => {
+import useError from '@hooks/useError';
+
+const AxiosInterceptor = ({ children }) => {
+    const token = useSelector((state) => state.auth.token);
     const { showError } = useError();
-    const { token } = useSelector(state => state.auth)
-    const [isReady, setisReady] = useState(false)
+
     useEffect(() => {
-        const requestIntercepter = axios.interceptors.request.use(
+        axios.interceptors.request.use(
             (config) => {
                 if (token) {
                     config.headers.Authorization = `Bearer ${token}`;
@@ -19,34 +20,25 @@ const AxiosInterceptorProvider = ({ children }) => {
             (error) => {
                 return Promise.reject(error);
             }
-        )
-
-        const responseInterceptor = axios.interceptors.response.use(
-            (response) => {
-                return response.data;
-            },
+        );
+        axios.interceptors.response.use(
+            (response) => response,
             (error) => {
-                const { response } = error;
-                let parsedError = '';
-                if (response && response.data) {
-                    parsedError = response.data.message || "Something Went Wrong!";
+                if (error.response) {
+                    showError(error.response.data.message || 'An error occurred');
                 } else {
-                    parsedError = "Something Went Wrong!";
+                    showError('Network error');
                 }
-                showError(parsedError);
-                return Promise.reject(response);
+                return Promise.reject(error);
             }
-        )
-        setisReady(true)
+        );
         return () => {
-            axios.interceptors.request.eject(requestIntercepter);
-            axios.interceptors.response.eject(responseInterceptor);
+            axios.interceptors.request.eject();
+            axios.interceptors.response.eject();
         };
-    }, []);
+    }, [token, showError]);
 
-    if (!isReady) return null;
-
-    return children
+    return children;
 };
 
-export default AxiosInterceptorProvider
+export default AxiosInterceptor;

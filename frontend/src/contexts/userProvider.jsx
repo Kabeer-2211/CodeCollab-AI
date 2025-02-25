@@ -10,14 +10,14 @@ export const userContext = createContext();
 
 const UserContextProvider = ({ children }) => {
     const navigate = useNavigate();
-    const { token, iAuthenticated } = useSelector(state => state.auth)
+    const { token, isAuthenticated } = useSelector(state => state.auth)
     const dispatch = useDispatch()
     const { pathname } = useLocation();
     useEffect(() => {
-        if (!token && iAuthenticated) {
+        if (!token && isAuthenticated) {
             signout()
         }
-    }, [pathname, token, iAuthenticated]);
+    }, [pathname, token, isAuthenticated]);
 
     useEffect(() => {
         async function getUserdata() {
@@ -34,7 +34,7 @@ const UserContextProvider = ({ children }) => {
         if (token) {
             getUserdata();
         }
-    }, []);
+    }, [token]);
 
     const signupUser = async (data) => {
         try {
