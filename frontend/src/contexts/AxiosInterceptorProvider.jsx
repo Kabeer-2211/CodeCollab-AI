@@ -1,17 +1,18 @@
 import { useEffect } from 'react';
 
 import axios from '@config/axios';
-import { useSelector } from 'react-redux';
+import { store } from "@redux/store";
 
 import useError from '@hooks/useError';
 
 const AxiosInterceptor = ({ children }) => {
-    const token = useSelector((state) => state.auth.token);
     const { showError } = useError();
 
     useEffect(() => {
-        axios.interceptors.request.use(
+        const requestInterceptor = axios.interceptors.request.use(
             (config) => {
+                const token = store.getState().auth.token;
+                console.log(token)
                 if (token) {
                     config.headers.Authorization = `Bearer ${token}`;
                 }
@@ -21,7 +22,7 @@ const AxiosInterceptor = ({ children }) => {
                 return Promise.reject(error);
             }
         );
-        axios.interceptors.response.use(
+        const responseInterceptor = axios.interceptors.response.use(
             (response) => response,
             (error) => {
                 if (error.response) {
@@ -33,10 +34,10 @@ const AxiosInterceptor = ({ children }) => {
             }
         );
         return () => {
-            axios.interceptors.request.eject();
-            axios.interceptors.response.eject();
+            axios.interceptors.request.eject(requestInterceptor);
+            axios.interceptors.response.eject(responseInterceptor);
         };
-    }, [token, showError]);
+    }, []);
 
     return children;
 };

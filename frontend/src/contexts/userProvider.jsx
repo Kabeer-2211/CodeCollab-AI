@@ -5,11 +5,13 @@ import { useSelector, useDispatch } from 'react-redux'
 
 import { login, register, profile, logout } from '@services/auth'
 import { setUser, beginAuthentication, authSuccess, logoutUser } from '@redux/slices/auth'
+import useError from '@hooks/useError'
 
 export const userContext = createContext();
 
 const UserContextProvider = ({ children }) => {
     const navigate = useNavigate();
+    const { showError } = useError()
     const { token, isAuthenticated } = useSelector(state => state.auth)
     const dispatch = useDispatch()
     const { pathname } = useLocation();
@@ -27,6 +29,7 @@ const UserContextProvider = ({ children }) => {
                     dispatch(setUser(response))
                 }
             } catch (err) {
+                showError(err.response?.data?.message || 'Something went wrong')
                 dispatch(logoutUser())
                 navigate('/login')
             }
@@ -46,6 +49,7 @@ const UserContextProvider = ({ children }) => {
             }
         } catch (err) {
             console.log(err)
+            showError(err.response?.data?.message || 'Something went wrong')
             dispatch(logoutUser())
         }
     };
@@ -61,6 +65,7 @@ const UserContextProvider = ({ children }) => {
             }
         } catch (err) {
             console.log(err)
+            showError(err.response?.data?.message || 'Something went wrong')
             dispatch(logoutUser())
         }
     };

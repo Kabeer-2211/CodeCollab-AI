@@ -8,7 +8,6 @@ import { setProjects } from '@redux/slices/project'
 const Home = () => {
     const dispatch = useDispatch()
     const { filteredProjects } = useSelector(state => state.project)
-    console.log(filteredProjects)
     useEffect(() => {
         async function getAllProjects() {
             try {

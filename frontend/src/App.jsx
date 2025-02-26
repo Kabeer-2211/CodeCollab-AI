@@ -12,13 +12,13 @@ const App = () => {
   return (
     <BrowserRouter>
       <ErrorProvider>
-        <AxiosInterceptor>
+        {/* <AxiosInterceptor> */}
           <UserContextProvider>
             <Layout>
               <Router />
             </Layout>
           </UserContextProvider>
-        </AxiosInterceptor>
+        {/* </AxiosInterceptor> */}
       </ErrorProvider>
     </BrowserRouter>
   )
