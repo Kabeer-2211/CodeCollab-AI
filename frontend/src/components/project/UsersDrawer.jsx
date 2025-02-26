@@ -3,7 +3,7 @@ import Drawer from '@mui/material/Drawer';
 const UsersDrawer = ({ isSidePanelOpen, setIsSidePanelOpen, users }) => {
     return (
         <Drawer open={isSidePanelOpen} onClose={() => setIsSidePanelOpen(false)}>
-            <header className="flex justify-between items-center p-3 bg-black text-white">
+            <header className="flex justify-between items-center p-3 bg-black text-white min-w-56">
                 <h1 className="font-bold text-lg">Collaborators</h1>
                 <button className="cursor-pointer hover:opacity-60" onClick={() => setIsSidePanelOpen(false)}>
                     <i className="ri-close-large-fill text-xl"></i>

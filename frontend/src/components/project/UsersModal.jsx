@@ -2,16 +2,21 @@ import { useEffect, useState } from 'react'
 
 import { getAllUsers } from "@services/auth";
 import { addCollaborators } from '@services/project';
+import useError from '@hooks/useError'
 
 const UsersModal = ({ setIsModalOpen, id, setProject }) => {
+    const { showError } = useError()
     const [users, setUsers] = useState([])
     const [selectedUser, setSelectedUser] = useState([])
     useEffect(() => {
         async function getUsers() {
-            const response = await getAllUsers()
-
-            if (response && response.users) {
-                setUsers(response.users)
+            try {
+                const response = await getAllUsers()
+                if (response && response.users) {
+                    setUsers(response.users)
+                }
+            } catch (err) {
+                showError(err.response?.data?.message || 'Something went wrong')
             }
         }
         getUsers()
@@ -27,7 +32,7 @@ const UsersModal = ({ setIsModalOpen, id, setProject }) => {
                 setIsModalOpen(false)
             }
         } catch (err) {
-            console.log(err)
+            showError(err.response?.data?.message || 'Something went wrong')
         }
     }
     const handleUserClick = (id) => {
@@ -51,13 +56,16 @@ const UsersModal = ({ setIsModalOpen, id, setProject }) => {
                             <i className="ri-close-large-fill text-xl"></i>
                         </button>
                     </div>
-                    <div className="flex flex-col py-2 max-h-72 overflow-y-auto">
-                        {users.map(item => <button key={item._id} className={`py-2 px-4 cursor-pointer flex items-center gap-2 hover:bg-slate-200 ${Array.from(selectedUser).indexOf(item._id) !== -1 && 'bg-slate-200'}`} onClick={() => handleUserClick(item._id)}>
+                    <div className="flex justify-evenly py-2 max-h-72 overflow-y-auto">
+                        {users.length > 0 ? users.map(item => <button key={item._id} className={`py-2 px-4 rounded-md cursor-pointer flex items-center gap-2 hover:bg-slate-200 ${Array.from(selectedUser).indexOf(item._id) !== -1 && 'bg-slate-200'}`} onClick={() => handleUserClick(item._id)}>
                             <div className="bg-gray-600 w-10 h-10 rounded-full flex justify-center items-center">
                                 <i className="ri-user-3-fill text-white"></i>
                             </div>
-                            <div className="font-semibold">{item.email}</div>
-                        </button>)}
+                            <div className='flex flex-col items-start'>
+                                <div className="font-semibold">{item.username}</div>
+                                <small>{item.email}</small>
+                            </div>
+                        </button>) : <div>Loading Users...</div>}
                     </div>
                     <div className="flex items-center justify-center p-3 border-t border-gray-200 rounded-b">
                         <button type="button" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xs px-5 py-2.5 text-center cursor-pointer" onClick={handleAddCollaborators}>Add Collabrators</button>

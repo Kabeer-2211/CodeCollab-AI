@@ -21,11 +21,6 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
     (response) => response.data,
     (error) => {
-        // if (error.response) {
-        //     showError(error.response.data.message || 'An error occurred');
-        // } else {
-        //     showError('Network error');
-        // }
         return Promise.reject(error);
     }
 );

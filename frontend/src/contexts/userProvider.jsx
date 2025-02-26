@@ -48,7 +48,6 @@ const UserContextProvider = ({ children }) => {
                 navigate('/')
             }
         } catch (err) {
-            console.log(err)
             showError(err.response?.data?.message || 'Something went wrong')
             dispatch(logoutUser())
         }
@@ -64,7 +63,6 @@ const UserContextProvider = ({ children }) => {
                 navigate('/')
             }
         } catch (err) {
-            console.log(err)
             showError(err.response?.data?.message || 'Something went wrong')
             dispatch(logoutUser())
         }

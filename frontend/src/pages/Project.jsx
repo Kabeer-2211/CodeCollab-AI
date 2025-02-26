@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom"
 import Markdown from 'markdown-to-jsx'
 import Editor from "@monaco-editor/react";
 
+import useError from '@hooks/useError'
 import { getProjectDetails } from "@services/project";
 import UsersDrawer from "@components/project/UsersDrawer";
 import UsersModal from "@components/project/UsersModal";
@@ -16,6 +17,7 @@ import { getWebContainer } from "@config/webContainer"
 const Project = () => {
     const { id } = useParams()
     const { user } = useSession()
+    const { showError } = useError()
     const [isSidePanelOpen, setIsSidePanelOpen] = useState(false)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [message, setMessage] = useState("")
@@ -57,10 +59,14 @@ const Project = () => {
     }, [])
     useEffect(() => {
         async function getProject() {
-            const response = await getProjectDetails(id)
-            if (response && response.project) {
-                setProject(response.project)
-                setFileTree(response.project.fileTree)
+            try {
+                const response = await getProjectDetails(id)
+                if (response && response.project) {
+                    setProject(response.project)
+                    setFileTree(response.project.fileTree)
+                }
+            } catch (err) {
+                showError(err.response?.data?.message || 'Something went wrong')
             }
         }
         getProject()
