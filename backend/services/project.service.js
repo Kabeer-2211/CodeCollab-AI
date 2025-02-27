@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 import Project from './../models/project.model.js';
+import Chat from '../models/chat.model.js';
 
 export const createProject = async (name, userId) => {
     if (!name) {
@@ -83,4 +84,15 @@ export const updateFileTree = async (projectId, fileTree) => {
     }
     const project = await Project.findByIdAndUpdate(projectId, { fileTree });
     return project;
+}
+
+export const getChat = async (projectId) => {
+    if (!projectId) {
+        throw new Error("Project id is required");
+    }
+    if (!mongoose.Types.ObjectId.isValid(projectId)) {
+        throw new Error("Invalid project id");
+    }
+    const chat = await Chat.find({ projectId });
+    return chat;
 }

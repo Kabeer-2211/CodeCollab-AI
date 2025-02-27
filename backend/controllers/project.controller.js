@@ -1,6 +1,6 @@
 import { validationResult } from 'express-validator';
 
-import { createProject, getAllProjectsByUserId, addUsersToProject, getProjectById, updateFileTree } from '../services/project.service.js';
+import { createProject, getAllProjectsByUserId, addUsersToProject, getProjectById, updateFileTree, getChat } from '../services/project.service.js';
 import User from '../models/user.model.js';
 
 export const createProjectController = async (req, res) => {
@@ -63,6 +63,16 @@ export const updateFileTreeController = async (req, res) => {
         const { projectId, fileTree } = req.body;
         const updatedProject = await updateFileTree(projectId, fileTree);
         return res.status(200).json({ project: updatedProject });
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+}
+
+export const getProjectChat = async (req, res) => {
+    try {
+        const { projectId } = req.params;
+        const chat = await getChat(projectId);
+        return res.status(200).json({ chat });
     } catch (err) {
         return res.status(500).json({ message: err.message });
     }

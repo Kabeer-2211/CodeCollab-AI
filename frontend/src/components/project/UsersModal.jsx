@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import { addCollaborators } from '@services/project';
 import useError from '@hooks/useError'

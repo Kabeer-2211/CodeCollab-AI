@@ -24,10 +24,10 @@ export default defineConfig({
       "@redux": path.resolve(__dirname, "src/redux"),
     }
   },
-  // server: {
-  //   headers: {
-  //     "Cross-Origin-Embedder-Policy": "require-corp",
-  //     "Cross-Origin-Opener-Policy": "same-origin"
-  //   }
-  // }
+  server: {
+    headers: {
+      "Cross-Origin-Embedder-Policy": "require-corp",
+      "Cross-Origin-Opener-Policy": "same-origin"
+    }
+  }
 })

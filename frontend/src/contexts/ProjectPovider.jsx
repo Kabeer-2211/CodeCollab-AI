@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom'
 import useSession from '@hooks/useSession'
 import useError from '@hooks/useError'
 import { getAllUsers } from "@services/auth";
-import { getProjectDetails } from "@services/project";
+import { getProjectDetails, getChat } from "@services/project";
 import { initializeSocket, receiveMessage, sendMessage } from "@config/socket"
 import { getWebContainer } from "@config/webContainer"
 
@@ -53,6 +53,21 @@ const ProjectPovider = ({ children }) => {
             getWebContainer().then(container => setWebContainer(container))
         }
     }, [])
+    useEffect(() => {
+        async function getProjectChat() {
+            try {
+                const response = await getChat(project._id)
+                if (response && response.chat) {
+                    setChat(response.chat)
+                }
+            } catch (err) {
+                showError(err.response?.data?.message || 'Something went wrong')
+            }
+        }
+        if (project) {
+            getProjectChat()
+        }
+    }, [project])
     useEffect(() => {
         async function getUsers() {
             try {

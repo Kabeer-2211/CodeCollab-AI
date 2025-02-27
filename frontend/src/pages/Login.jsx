@@ -47,7 +47,7 @@ const Login = () => {
                     </motion.div>
                 </section>
                 <section className='w-2/4 flex items-center justify-center'>
-                    <motion.img initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: .8, delay: 0.7 }} className='max-w-full max-h-full' src="https://static.vecteezy.com/system/resources/thumbnails/023/784/016/small_2x/a-man-asks-a-question-to-artificial-intelligence-bot-chatbot-in-the-form-of-a-cute-robot-answers-questions-ai-and-human-characters-using-and-chatting-messanger-neural-network-conversation-vector.jpg" alt="login" />
+                    <motion.img initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: .8, delay: 0.7 }} className='max-w-full max-h-full' src="/login.jpg" alt="login" />
                 </section>
             </div>
         </div>

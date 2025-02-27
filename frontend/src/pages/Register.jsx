@@ -47,7 +47,7 @@ const Register = () => {
                     </motion.div>
                 </section>
                 <section className='w-2/4 flex items-center justify-center'>
-                    <motion.img initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: .8, delay: 0.7 }} className='max-w-full max-h-full' src="https://img.freepik.com/premium-vector/chatbot-customer-service-abstract-concept-vector-illustration_107173-25718.jpg?semt=ais_hybrid" alt="login" />
+                    <motion.img initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ duration: .8, delay: 0.7 }} className='max-w-full max-h-full' src="/signup.avif" alt="login" />
                 </section>
             </div>
         </div>

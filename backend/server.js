@@ -6,9 +6,11 @@ import mongoose from "mongoose";
 import Project from "./models/project.model.js";
 import { generateResult } from "./services/ai.service.js";
 import User from "./models/user.model.js";
+import Chat from './models/chat.model.js';
 
 import app from "./app.js";
 import connect from "./db/db.js";
+import { log } from "console";
 connect();
 
 const server = http.createServer(app);
@@ -50,12 +52,14 @@ io.on('connection', socket => {
 
   socket.on('project-message', async (data) => {
     const user = await User.findOne({ email: data.sender });
+    await Chat.create({ projectId: socket.project._id, message: data.message, sender: { name: user.username, email: user.email } });
     io.to(socket.roomId).emit('project-message', { message: data.message, sender: { name: user.username, email: user.email } });
     const message = data.message;
     const isAiMessage = message.includes('@ai');
     if (isAiMessage) {
       const prompt = message.replace('@ai', '');
       const result = await generateResult(prompt);
+      await Chat.create({ projectId: socket.project._id, message: JSON.parse(result).text, sender: { name: "AI" } });
       io.to(socket.roomId).emit('project-message', {
         sender: {
           name: "AI"
