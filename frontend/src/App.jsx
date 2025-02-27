@@ -5,20 +5,17 @@ import Router from "@routes/index"
 import Layout from '@layout'
 import UserContextProvider from "@contexts/userProvider"
 import ErrorProvider from '@contexts/errorProvider'
-import AxiosInterceptor from '@contexts/AxiosInterceptorProvider'
 
 const App = () => {
 
   return (
     <BrowserRouter>
       <ErrorProvider>
-        {/* <AxiosInterceptor> */}
-          <UserContextProvider>
-            <Layout>
-              <Router />
-            </Layout>
-          </UserContextProvider>
-        {/* </AxiosInterceptor> */}
+        <UserContextProvider>
+          <Layout>
+            <Router />
+          </Layout>
+        </UserContextProvider>
       </ErrorProvider>
     </BrowserRouter>
   )

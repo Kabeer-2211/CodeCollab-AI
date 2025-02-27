@@ -5,6 +5,7 @@ import { Server } from "socket.io";
 import mongoose from "mongoose";
 import Project from "./models/project.model.js";
 import { generateResult } from "./services/ai.service.js";
+import User from "./models/user.model.js";
 
 import app from "./app.js";
 import connect from "./db/db.js";
@@ -22,6 +23,7 @@ io.use(async (socket, next) => {
   try {
     const token = socket.handshake.auth?.token || socket.handshake.headers.authorization?.split(' ')[1];
     const projectId = socket.handshake.query.projectId;
+
     if (!token) {
       return next(new Error('Authentication error'));
     }
@@ -47,14 +49,17 @@ io.on('connection', socket => {
   socket.join(socket.roomId);
 
   socket.on('project-message', async (data) => {
-    io.to(socket.roomId).emit('project-message', data);
+    const user = await User.findOne({ email: data.sender });
+    io.to(socket.roomId).emit('project-message', { message: data.message, sender: { name: user.username, email: user.email } });
     const message = data.message;
     const isAiMessage = message.includes('@ai');
     if (isAiMessage) {
       const prompt = message.replace('@ai', '');
       const result = await generateResult(prompt);
       io.to(socket.roomId).emit('project-message', {
-        sender: "AI",
+        sender: {
+          name: "AI"
+        },
         message: result
       });
     }

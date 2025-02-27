@@ -4,6 +4,7 @@ import Home from '@pages/Home'
 import Project from '@pages/Project'
 import Login from '@pages/Login'
 import Register from '@pages/Register'
+import ProjectPovider from '@contexts/ProjectPovider'
 import PrivateRoute from '@routes/PrivateRoute'
 import PublicRoute from '@routes/PublicRoute'
 
@@ -17,7 +18,9 @@ const Router = () => {
             } />
             <Route path='/project/:id' element={
                 <PrivateRoute>
-                    <Project />
+                    <ProjectPovider>
+                        <Project />
+                    </ProjectPovider>
                 </PrivateRoute>
             } />
             <Route path='/login' element={

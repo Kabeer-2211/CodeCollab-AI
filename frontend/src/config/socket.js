@@ -1,13 +1,13 @@
 import socket from 'socket.io-client'
 
-import { getToken } from '@utils/auth'
+import { store } from '@redux/store'
 
 let socketInstance = null;
 
 export const initializeSocket = (projectId) => {
     socketInstance = socket(import.meta.env.VITE_BASE_URL, {
         auth: {
-            token: getToken()
+            token: store.getState().auth.token
         },
         query: {
             projectId

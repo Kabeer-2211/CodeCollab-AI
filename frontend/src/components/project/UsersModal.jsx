@@ -1,26 +1,13 @@
 import { useEffect, useState } from 'react'
 
-import { getAllUsers } from "@services/auth";
 import { addCollaborators } from '@services/project';
 import useError from '@hooks/useError'
+import useProject from '@hooks/useProject';
 
-const UsersModal = ({ setIsModalOpen, id, setProject }) => {
+const UsersModal = ({ setIsModalOpen }) => {
+    const { id, setProject, users } = useProject()
     const { showError } = useError()
-    const [users, setUsers] = useState([])
     const [selectedUser, setSelectedUser] = useState([])
-    useEffect(() => {
-        async function getUsers() {
-            try {
-                const response = await getAllUsers()
-                if (response && response.users) {
-                    setUsers(response.users)
-                }
-            } catch (err) {
-                showError(err.response?.data?.message || 'Something went wrong')
-            }
-        }
-        getUsers()
-    }, [])
     const handleAddCollaborators = async () => {
         try {
             const response = await addCollaborators({
